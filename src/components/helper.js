@@ -5,6 +5,7 @@ import PropTypes from 'prop-types'
 import { CSpinner, CToast, CToastBody, CToastHeader } from '@coreui/react'
 import axios from 'axios'
 import Swal from 'sweetalert2'
+import { cilCheck } from '@coreui/icons'
 
 export function SubmitButton({
   loading = false,
@@ -39,24 +40,21 @@ SubmitButton.propTypes = {
   form: PropTypes.string,
   onClick: PropTypes.func,
 }
-export const exampleToast = (
-  <CToast>
+export const newToast = (
+  title,
+  body,
+  timestamp = '',
+  icon = <CIcon icon={cilCheck} className="text-success" />,
+  autoHide = true,
+  delay = 3000,
+) => (
+  <CToast delay={delay} autohide={autoHide}>
     <CToastHeader closeButton>
-      <svg
-        className="rounded me-2"
-        width="20"
-        height="20"
-        xmlns="http://www.w3.org/2000/svg"
-        preserveAspectRatio="xMidYMid slice"
-        focusable="false"
-        role="img"
-      >
-        <rect width="100%" height="100%" fill="#007aff"></rect>
-      </svg>
-      <strong className="me-auto">CoreUI for React.js</strong>
-      <small>7 min ago</small>
+      <span className="me-1">{icon}</span>
+      <strong className="me-auto">{title}</strong>
+      <small>{timestamp}</small>
     </CToastHeader>
-    <CToastBody>Hello, world! This is a toast message.</CToastBody>
+    <CToastBody>{body}</CToastBody>
   </CToast>
 )
 export const getUser = (token) =>
@@ -102,7 +100,7 @@ export const errCatch = (e) => {
         html: htm,
       })
     } else {
-      Swal.fire('Error!', e.response.status, 'error')
+      Swal.fire('Error!', e.response.status.toString(), 'error')
     }
   } else {
     Swal.fire('Error!', 'check logs for detail', 'error')
@@ -120,3 +118,5 @@ export function printDiv(divName) {
   wd.print()
   wd.close()
 }
+export const can = (permission, user) =>
+  (user?.permissions || []).find((p) => p === permission) ? true : false

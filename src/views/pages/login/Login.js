@@ -32,8 +32,10 @@ const Login = () => {
       .then(({ data }) => {
         getUser(data.api_token)
           .then((d) => {
+            axios.defaults.headers = {
+              Authorization: 'Bearer ' + data.api_token,
+            }
             dispatch(authSetUser(d))
-            console.log(d)
           })
           .catch((e) => errCatch(e))
         sessionStorage.setItem('token', data.api_token)

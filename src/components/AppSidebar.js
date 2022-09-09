@@ -1,25 +1,39 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 
-import { CSidebar, CSidebarBrand, CSidebarNav, CSidebarToggler } from '@coreui/react'
-import CIcon from '@coreui/icons-react'
+import { CSidebar, CSidebarBrand, CSidebarNav, CSidebarToggler, CImage } from '@coreui/react'
 
 import { AppSidebarNav } from './AppSidebarNav'
 
-import { logoNegative } from 'src/assets/brand/logo-negative'
-import { sygnet } from 'src/assets/brand/sygnet'
+import logoNegative from 'src/assets/brand/invoice-dark.png'
+import sygnet from 'src/assets/brand/invoice.svg'
 
 import SimpleBar from 'simplebar-react'
 import 'simplebar/dist/simplebar.min.css'
 
 // sidebar nav config
 import navigation from '../_nav'
-import { toggleSidebar } from 'src/reducer-slices/themeSlice'
+import { toggleSidebar, toggleUnfoldable } from 'src/reducer-slices/themeSlice'
+import { can } from './helper'
 
 const AppSidebar = () => {
   const dispatch = useDispatch()
   const unfoldable = useSelector((state) => state.theme.sidebarUnfoldable)
   const sidebarShow = useSelector((state) => state.theme.sidebarShow)
+  const user = useSelector((state) => state.auth.user)
+  const [navlist, setNavlist] = useState([])
+  useEffect(() => {
+    let lst = []
+    navigation.map((v) => {
+      if (v.permission) {
+        if (can('Administrator', user)) lst.push(v)
+      } else {
+        lst.push(v)
+      }
+      setNavlist(lst)
+      return 1
+    })
+  }, [user])
 
   return (
     <CSidebar
@@ -31,17 +45,17 @@ const AppSidebar = () => {
       }}
     >
       <CSidebarBrand className="d-none d-md-flex" to="/">
-        <CIcon className="sidebar-brand-full" icon={logoNegative} height={35} />
-        <CIcon className="sidebar-brand-narrow" icon={sygnet} height={35} />
+        <CImage src={logoNegative} className="sidebar-brand-full" height={35} />
+        <CImage className="sidebar-brand-narrow" src={sygnet} height={35} />
       </CSidebarBrand>
       <CSidebarNav>
         <SimpleBar>
-          <AppSidebarNav items={navigation} />
+          <AppSidebarNav items={navlist} />
         </SimpleBar>
       </CSidebarNav>
       <CSidebarToggler
         className="d-none d-lg-flex"
-        onClick={() => dispatch({ type: 'set', sidebarUnfoldable: !unfoldable })}
+        onClick={() => dispatch(toggleUnfoldable(!unfoldable))}
       />
     </CSidebar>
   )
